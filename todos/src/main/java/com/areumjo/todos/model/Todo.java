@@ -34,10 +34,10 @@ public class Todo extends Auditable
     public Todo() {
     }
 
-    public Todo(String description, Date datestarted, boolean completed, User user) {
+    public Todo(String description, Date datestarted, User user) {
         this.description = description;
         this.datestarted = datestarted;
-        this.completed = completed;
+        this.completed = false;
         this.user = user;
     }
 

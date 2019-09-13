@@ -1,0 +1,121 @@
+package com.areumjo.todos.service;
+
+import com.areumjo.todos.model.Todo;
+import com.areumjo.todos.model.User;
+import com.areumjo.todos.model.UserRoles;
+import com.areumjo.todos.repository.RoleRepository;
+import com.areumjo.todos.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service(value = "userService")
+public class UserServiceImpl implements UserService {
+    @Autowired
+    private UserRepository userrepos;
+
+    @Autowired
+    private RoleRepository rolerepos;
+
+    @Override
+    public List<User> findAll() {
+        List<User> myUser = new ArrayList<>();
+        userrepos.findAll().iterator().forEachRemaining(myUser::add);
+        return myUser;
+    }
+
+    @Override
+    public User findUserByName(String name) {
+        User currentUser = userrepos.findByUsername(name);
+
+        if (currentUser != null)
+        {
+            return currentUser;
+        } else
+        {
+            throw new EntityNotFoundException(name);
+        }
+    }
+
+    @Override
+    public User findUserById(long id) {
+        return userrepos.findById(id).orElseThrow(() -> new EntityNotFoundException(Long.toString(id)));
+    }
+
+    @Override
+    public void delete(long id) {
+        if (userrepos.findById(id).isPresent())
+        {
+            userrepos.deleteById(id);
+        } else
+        {
+            throw new EntityNotFoundException(Long.toString(id));
+        }
+    }
+
+    @Transactional
+    @Override
+    public User save(User user) {
+        User newUser = new User();
+        newUser.setUsername(user.getUsername());
+        newUser.setPassword(user.getPassword());
+
+        ArrayList<UserRoles> newRoles = new ArrayList<>();
+        for (UserRoles ur : user.getUserRoles())
+        {
+            newRoles.add(new UserRoles(newUser, ur.getRole()));
+        }
+        newUser.setUserRoles(newRoles);
+
+//        for (Todo q : user.getTodos())
+//        {
+//            newUser.getTodos().add(new Todo(q.getDescription(), newUser));
+//        }
+
+        return userrepos.save(newUser);
+    }
+
+    @Transactional
+    @Override
+    public User update(User user, long id) {
+        User currentUser = userrepos.findById(id).orElseThrow(() -> new EntityNotFoundException(Long.toString(id)));
+
+        if (user.getUsername() != null)
+        {
+            currentUser.setUsername(user.getUsername());
+        }
+
+        if (user.getPassword() != null)
+        {
+            currentUser.setPassword(user.getPassword());
+        }
+
+        if (user.getUserRoles().size() > 0)
+        {
+            // with so many relationships happening, I decided to go
+            // with old school queries
+            // delete the old ones
+
+            rolerepos.deleteUserRolesByUserId(currentUser.getUserid());
+
+            // add the new ones
+            for (UserRoles ur : user.getUserRoles())
+            {
+                rolerepos.insertUserRoles(id, ur.getRole().getRoleid());
+            }
+        }
+
+//        if (user.getTodos().size() > 0)
+//        {
+//            for (Todo q : user.getTodos())
+//            {
+//                currentUser.getTodos().add(new Todo(q.getDescription(), currentUser));
+//            }
+//        }
+        return userrepos.save(currentUser);
+    }
+}
