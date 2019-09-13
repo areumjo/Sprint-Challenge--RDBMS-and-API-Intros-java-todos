@@ -56,7 +56,7 @@ public class UserController
         return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
     }
 
-    // PUI - localhost:8000/users/{userId}
+    // PUT - localhost:8000/users/{userId}
     @PutMapping(value = "/user/{userId}")
     public ResponseEntity<?> updateUser(@RequestBody User updateUser, @PathVariable long userId)
     {

@@ -6,6 +6,9 @@ import com.areumjo.todos.model.UserRoles;
 import com.areumjo.todos.repository.RoleRepository;
 import com.areumjo.todos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +17,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service(value = "userService")
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserDetailsService, UserService {
     @Autowired
     private UserRepository userrepos;
 
     @Autowired
     private RoleRepository rolerepos;
+
+    @Transactional
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    {
+        User user = userrepos.findByUsername(username);
+        if (user == null)
+        {
+            throw new UsernameNotFoundException("Invalid username or password.");
+        }
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthority());
+    }
 
     @Override
     public List<User> findAll() {
@@ -62,7 +77,7 @@ public class UserServiceImpl implements UserService {
     public User save(User user) {
         User newUser = new User();
         newUser.setUsername(user.getUsername());
-        newUser.setPassword(user.getPassword());
+        newUser.setPasswordNoEncrypt(user.getPassword());
 
         ArrayList<UserRoles> newRoles = new ArrayList<>();
         for (UserRoles ur : user.getUserRoles())

@@ -2,6 +2,8 @@ package com.areumjo.todos.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -71,8 +73,15 @@ public class User extends Auditable
     }
 
     public void setPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public void setPasswordNoEncrypt(String password)
+    {
         this.password = password;
     }
+
 
     public List<UserRoles> getUserRoles() {
         return userRoles;
@@ -88,5 +97,17 @@ public class User extends Auditable
 
     public void setTodos(List<Todo> todos) {
         this.todos = todos;
+    }
+
+    public List<SimpleGrantedAuthority> getAuthority()
+    {
+        List<SimpleGrantedAuthority> rtnList = new ArrayList<>();
+
+        for (UserRoles r : this.userRoles)
+        {
+            String myRole = "ROLE_" + r.getRole().getRolename().toUpperCase();
+            rtnList.add(new SimpleGrantedAuthority(myRole));
+        }
+        return rtnList;
     }
 }
