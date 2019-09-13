@@ -1,6 +1,8 @@
 package com.areumjo.todos.controller;
 
+import com.areumjo.todos.model.Todo;
 import com.areumjo.todos.model.User;
+import com.areumjo.todos.service.TodoService;
 import com.areumjo.todos.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +23,7 @@ public class UserController
 
     @Autowired
     private UserService userService;
+    private TodoService todoService;
 
     //localhost:8000/users/users
     @GetMapping(value = "/users", produces = {"application/json"})
@@ -30,11 +33,11 @@ public class UserController
         return new ResponseEntity<>(myUsers, HttpStatus.OK);
     }
 
-    //localhost:8000/users/{userId}
-    @GetMapping(value = "/user/{userId}", produces = {"application/json"})
-    public ResponseEntity<?> getUser(@PathVariable Long userId)
+    //localhost:8000/users/{username}
+    @GetMapping(value = "/{username}", produces = {"application/json"})
+    public ResponseEntity<?> getUser(@PathVariable String username)
     {
-        User u = userService.findUserById(userId);
+        User u = userService.findUserByName(username);
         return new ResponseEntity<>(u, HttpStatus.OK);
     }
 
@@ -64,7 +67,7 @@ public class UserController
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // DELET - localhost:8000/users/userid/{userId}
+    // DELETE - localhost:8000/users/userid/{userId}
     //@PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @DeleteMapping("/userid/{userId}")
     public ResponseEntity<?> deleteUserById(@PathVariable long userId)
@@ -72,5 +75,15 @@ public class UserController
         userService.delete(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    // POST - /users/todo/{userid} - add a todo to the assigned user
+    @PostMapping(value = "/todo/{userid}",
+                consumes = {"application/json"},
+                produces = {"application/json"})
+    public ResponseEntity<?> postNewTodo(@PathVariable long userid, @RequestBody Todo todo){
+        todo.setUser(userService.findUserById(userid));
+        return new ResponseEntity<>(todoService.save(todo), HttpStatus.OK);
+    }
+
 
 }

@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
         if (user.getPassword() != null)
         {
-            currentUser.setPassword(user.getPassword());
+            currentUser.setPasswordNoEncrypt(user.getPassword());
         }
 
         if (user.getUserRoles().size() > 0)
