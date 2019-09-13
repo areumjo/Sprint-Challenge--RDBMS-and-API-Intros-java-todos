@@ -15,13 +15,13 @@ public class UserRoles extends Auditable implements Serializable {
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("userRoles")
+    @JsonIgnoreProperties({"userRoles", "hibernateLazyInitializer"})
     @JoinColumn(name = "userid")
     private User user;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("userRoles")
+    @JsonIgnoreProperties({"userRoles", "hibernateLazyInitializer"})
     @JoinColumn(name = "roleid")
     private Role role;
 

@@ -43,22 +43,22 @@ public class SeedData implements CommandLineRunner {
         u1.getTodos().add(new Todo("Complete the sprint challenge", new Date(), u1));
         userrepos.save(u1);
 
-//        ArrayList<UserRoles> admins = new ArrayList<>();
-//        admins.add(new UserRoles(new User(), r1));
-//        admins.add(new UserRoles(new User(), r2));
-//        User u2 = new User("admin", "password", admins);
-//        u2.getTodos().add(new Todo("Walk the dogs", new Date(), u2));
-//        u2.getTodos().add(new Todo("provide feedback to my instructor", new Date(), u2));
-//        userrepos.save(u2);
-//
-//        users = new ArrayList<>();
-//        users.add(new UserRoles(new User(), r2));
-//        User u3 = new User("Bob", "password", users);
-//        userrepos.save(u3);
-//
-//        users = new ArrayList<>();
-//        users.add(new UserRoles(new User(), r2));
-//        User u4 = new User("Jane", "password", users);
-//        userrepos.save(u4);
+        ArrayList<UserRoles> admins = new ArrayList<>();
+        admins.add(new UserRoles(new User(), r1));
+        admins.add(new UserRoles(new User(), r2));
+        User u2 = new User("admin", "password", admins);
+        u2.getTodos().add(new Todo("Walk the dogs", new Date(), u2));
+        u2.getTodos().add(new Todo("provide feedback to my instructor", new Date(), u2));
+        userrepos.save(u2);
+
+        users = new ArrayList<>();
+        users.add(new UserRoles(new User(), r2));
+        User u3 = new User("Bob", "password", users);
+        userrepos.save(u3);
+
+        users = new ArrayList<>();
+        users.add(new UserRoles(new User(), r2));
+        User u4 = new User("Jane", "password", users);
+        userrepos.save(u4);
     }
 }
