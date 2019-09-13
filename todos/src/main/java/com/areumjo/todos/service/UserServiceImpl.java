@@ -4,8 +4,11 @@ import com.areumjo.todos.model.Todo;
 import com.areumjo.todos.model.User;
 import com.areumjo.todos.model.UserRoles;
 import com.areumjo.todos.repository.RoleRepository;
+import com.areumjo.todos.repository.TodoRepository;
 import com.areumjo.todos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service(value = "userService")
@@ -23,6 +27,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Autowired
     private RoleRepository rolerepos;
+
+    @Autowired
+    private TodoRepository todorepos;
 
     @Transactional
     @Override
@@ -56,8 +63,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
     }
 
-    @Override
-    public User findUserById(long id) {
+    @Transactional
+    public User findUserById(long id) throws EntityNotFoundException {
         return userrepos.findById(id).orElseThrow(() -> new EntityNotFoundException(Long.toString(id)));
     }
 
@@ -86,10 +93,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
         newUser.setUserRoles(newRoles);
 
-//        for (Todo q : user.getTodos())
-//        {
-//            newUser.getTodos().add(new Todo(q.getDescription(), newUser));
-//        }
+        for (Todo q : user.getTodos())
+        {
+            newUser.getTodos().add(new Todo(q.getDescription(), new Date(), newUser));
+        }
 
         return userrepos.save(newUser);
     }
@@ -124,13 +131,33 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             }
         }
 
-//        if (user.getTodos().size() > 0)
-//        {
-//            for (Todo q : user.getTodos())
-//            {
-//                currentUser.getTodos().add(new Todo(q.getDescription(), currentUser));
-//            }
-//        }
+        if (user.getTodos().size() > 0)
+        {
+            for (Todo q : user.getTodos())
+            {
+                currentUser.getTodos().add(new Todo(q.getDescription(), new Date(), currentUser));
+            }
+        }
+
         return userrepos.save(currentUser);
+    }
+
+    @Transactional
+    @Override
+    public Todo addTodo(Todo todo, long id)
+    {
+
+        User currentUser = userrepos.findById(id).orElseThrow(() -> new EntityNotFoundException(Long.toString(id)));
+        Todo newTodo = new Todo();
+        newTodo.setDescription(todo.getDescription());
+
+        ArrayList<Todo> newTodos = new ArrayList<>();
+        for (Todo t : currentUser.getTodos())
+        {
+            currentUser.getTodos().add(new Todo(t.getDescription(), new Date(), currentUser));
+        }
+        currentUser.setTodos(newTodos);
+
+        return todorepos.save(newTodo);
     }
 }

@@ -37,11 +37,12 @@ public class TodoController
     }
 
     // PUT - /todos/todoid/{todoid} - updates a todo based on todoid
-    @PutMapping(value = "/todos/todoid/{todoid}",
+    @PutMapping(value = "/todoid/{todoid}",
             produces = {"application/json"},
             consumes = {"application/json"})
-    public ResponseEntity<?> updateTodo(@PathVariable long todoid, @RequestBody Todo todo){
-        return new ResponseEntity<>(todoService.update(todo, todoid), HttpStatus.OK);
+    public ResponseEntity<?> updateTodo(@PathVariable long todoid, @RequestBody Todo updateTodo){
+        todoService.update(updateTodo, todoid);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

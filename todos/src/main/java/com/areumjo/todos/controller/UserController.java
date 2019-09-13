@@ -41,7 +41,7 @@ public class UserController
         return new ResponseEntity<>(u, HttpStatus.OK);
     }
 
-    // POST - localhost:8000/users
+    // POST - localhost:8000/users/user
     @PostMapping(value = "/user", consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<?> addNewUser(@Valid @RequestBody User newuser) throws URISyntaxException
     {
@@ -80,10 +80,18 @@ public class UserController
     @PostMapping(value = "/todo/{userid}",
                 consumes = {"application/json"},
                 produces = {"application/json"})
-    public ResponseEntity<?> postNewTodo(@PathVariable long userid, @RequestBody Todo todo){
-        todo.setUser(userService.findUserById(userid));
-        return new ResponseEntity<>(todoService.save(todo), HttpStatus.OK);
-    }
+    public ResponseEntity<?> postNewTodo(@PathVariable long userid, @Valid @RequestBody Todo todo){
+        todo = userService.addTodo(todo, userid);
 
+        // set the location header for the newly created resource
+        HttpHeaders responseHeaders = new HttpHeaders();
+        URI newTodoURI = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{todoid}")
+                .buildAndExpand(todo.getUser())
+                .toUri();
+        responseHeaders.setLocation(newTodoURI);
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
 
 }

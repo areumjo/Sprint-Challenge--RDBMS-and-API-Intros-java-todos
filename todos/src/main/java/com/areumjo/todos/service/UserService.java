@@ -1,5 +1,6 @@
 package com.areumjo.todos.service;
 
+import com.areumjo.todos.model.Todo;
 import com.areumjo.todos.model.User;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface UserService
     User save(User user);
 
     User update(User user, long id);
+
+    Todo addTodo(Todo todo, long id);
 }
